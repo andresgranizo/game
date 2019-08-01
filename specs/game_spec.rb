@@ -1,5 +1,5 @@
 require 'rspec'
-require_relative '../cg/game'
+require_relative '../lib/game'
 
 describe Mage do
   context 'when the mage find token' do

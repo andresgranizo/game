@@ -1,5 +1,4 @@
 require 'observer'
-require 'byebug'
 
 class Character
   BASE_HEALTH = 10
@@ -33,7 +32,7 @@ class Mage < Character
 end
 
 class Demon < Character
-  def update(...)
+  def update
     healing
   end
 
