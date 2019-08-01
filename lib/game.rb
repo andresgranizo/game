@@ -1,46 +1,63 @@
-require
+require 'observer'
+require 'byebug'
 
-describe mage do
-  it 'find token' do
-    mage = Mage.new(:find)
-    expect(mage).to be_find
+class Character
+  BASE_HEALTH = 10
+
+  attr_reader :health
+
+  def initialize
+    @health = BASE_HEALTH
   end
-end
-context 'when thw mage find token' do
-  context 'then the token  activate' do
-    it 'reduce the health of the mage' do
-      mage = Mage.new(:find)
-      token = Token.new(:activate)
-      mage.discovers(token)
-      expect(mage).to be_damage
-    end
+
+  def update
+    raise 'Must implement in child class'
   end
-end
-context 'when the mage find a token' do
-  context 'when the token is inactive' do
-    it 'does not affect the health of mage' do
-      mage = Mage.new(:find)
-      token = Token.new(:inactive)
-      mage.discovers(token)
-      expect(mage).to be_fine
-    end
+
+  def discovers(token)
+    update if token.cursed?
+    token.add_observer(self)
   end
 end
 
-describe token do
-  it 'it create a token inactive' do
-    token = Token.new(:inactive)
-    expect(token).to be_inactive
+class Mage < Character
+  def update
+    damage
+  end
+
+  private
+
+  def damage
+    @health = @health - 3
   end
 end
-context 'when the token changes status from inactive to active' do
-  it 'it does affect all the mages to find the token' do
-    mage = Mage.new(:find)
-    token = Token.new(:inactive)
-    mage.discovers(token)
-    expect(mage).to be_fine
-    token.cursed?
-    expect(token).to be_active
-    expect(mage).to be_damage
+
+class Demon < Character
+  def update(...)
+    healing
+  end
+
+  private
+
+  def healing
+    @health = @health  +  3
+  end
+end
+
+class Token
+  include Observable
+
+  def initialize(cursed: false)
+    @cursed = cursed
+  end
+
+  def activate!
+    @cursed = true
+    changed
+    notify_observers
+  end
+
+  def cursed?
+    @cursed
   end
 end
